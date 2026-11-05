@@ -301,6 +301,7 @@ pm2 restart kopo-booking
 |---|---|
 | `db:check`에서 `ETIMEDOUT`·`ECONNREFUSED`·`ER_ACCESS_DENIED_ERROR` | 가비아 콘솔에서 **현재 PC·서버의 공인 IP가 허용**되어 있는지 확인하세요. 접속 정보 오타도 확인하세요. |
 | 다른 PC에서는 알림이 오는데 **배포 서버에서만 안 옴** | 텔레그램은 서버가 **밖으로 보내는** 요청이라 받는 포트를 열 필요가 없습니다. 서버의 `.env`에 토큰·chat_id가 제대로 들어 있는지(`==` 오타 포함), `.env`를 고친 뒤 `pm2 restart`를 했는지, `pm2 logs`에 `notify.failed`나 "알림 채널 미설정"이 있는지 확인하세요. 서버에서 `curl -sS https://api.telegram.org`가 응답하는지도 확인하세요. |
+| 서버에서 `curl`로는 텔레그램이 되는데 앱 알림만 `ETIMEDOUT` | IPv6가 막힌 서버(Oracle Cloud 등)에서 Node `fetch`가 생기는 문제예요. 현재 코드는 알림을 IPv4로 직접 보내므로 최신 코드로 올리면 해결돼요. `npm run notify:check -- --send`로 확인하세요. |
 | 테스트 알림 실패: `HTTP 404 Not Found` | **봇 토큰이 틀렸습니다.** `.env`에서 `==`처럼 등호가 두 번 들어가지 않았는지, 앞뒤에 공백이나 따옴표가 없는지 확인하세요. |
 | 테스트 알림 실패: `HTTP 400 ... chat not found` | chat_id가 틀렸거나, 봇이 그 그룹에 초대되지 않았습니다. 개인 chat_id라면 봇에게 먼저 말을 걸지 않은 경우입니다. |
 | 테스트 알림 실패: `HTTP 403 ... bot was kicked` | 봇이 그룹에서 내보내졌습니다. 다시 초대하세요. |

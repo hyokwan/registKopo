@@ -2,6 +2,7 @@
 // 알림 발송: 텔레그램(HTML parse_mode) + 슬랙(Incoming Webhook)
 // 응답을 보낸 뒤 비동기로 처리하며, 실패해도 예약 흐름에 영향을 주지 않는다.
 // 타임아웃 5초, 재시도 1회, 실패하면 로그만 남긴다. (토큰·전체 전화번호는 로그에 남기지 않음)
+const https = require('https');
 const config = require('../config');
 const db = require('../db');
 const log = require('../logger');
@@ -11,23 +12,46 @@ const { t } = db;
 const TIMEOUT_MS = 5000;
 const RETRIES = 1;
 
+// HTTPS POST (JSON). family: 4 = IPv4만, 0 = 운영체제 기본
+// fetch를 쓰지 않는 이유: IPv6가 막힌 서버(예: Oracle Cloud 기본 설정)에서 fetch의 IPv4/IPv6 번갈아 연결이
+// 시도당 0.25초만 기다리다 ETIMEDOUT으로 실패하는 경우가 있어, IPv4로 직접 연결한다.
+function postJson(url, body, family) {
+  return new Promise((resolve, reject) => {
+    const data = Buffer.from(JSON.stringify(body));
+    const req = https.request(url, {
+      method: 'POST',
+      family,
+      headers: { 'Content-Type': 'application/json', 'Content-Length': data.length },
+    }, (res) => {
+      let text = '';
+      res.setEncoding('utf8');
+      res.on('data', (c) => { text += c; });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) return resolve(text);
+        let reason = `HTTP ${res.statusCode}`;
+        try { const j = JSON.parse(text); if (j.description) reason += ` ${j.description}`; } catch (_) { if (text) reason += ` ${text.slice(0, 100)}`; }
+        reject(Object.assign(new Error(reason), { status: res.statusCode }));
+      });
+    });
+    // 연결부터 응답 완료까지 전체 시간 제한
+    const timer = setTimeout(() => req.destroy(Object.assign(new Error('timeout'), { name: 'TimeoutError' })), TIMEOUT_MS);
+    req.on('close', () => clearTimeout(timer));
+    req.on('error', reject);
+    req.end(data);
+  });
+}
+
+// 연결 단계 오류(IPv4 경로·주소 없음)일 때만 운영체제 기본 방식으로 한 번 더 시도한다
+const NETWORK_ERRORS = new Set(['ENETUNREACH', 'EHOSTUNREACH', 'ENOTFOUND', 'EAI_AGAIN', 'EADDRNOTAVAIL']);
+
 // 실제 HTTP 호출. 테스트에서는 _setTransport로 바꿔 끼운다.
 async function httpTransport(url, body) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
-  const text = await res.text();
-  if (!res.ok) {
-    let reason = `HTTP ${res.status}`;
-    try { const j = JSON.parse(text); if (j.description) reason += ` ${j.description}`; } catch (_) { if (text) reason += ` ${text.slice(0, 100)}`; }
-    const err = new Error(reason);
-    err.status = res.status;
-    throw err;
+  try {
+    return await postJson(url, body, 4);
+  } catch (err) {
+    if (!NETWORK_ERRORS.has(err.code)) throw err;
+    return postJson(url, body, 0);
   }
-  return text;
 }
 
 // 테스트 환경에서는 실제로 보내지 않는다(.env의 실제 채널로 테스트 메시지가 가지 않도록).
@@ -183,4 +207,4 @@ async function channelStatus(professor) {
   };
 }
 
-module.exports = { reservationEvent, sendTest, channelStatus, buildMessage, maskPhone, _setTransport, _flush };
+module.exports = { reservationEvent, sendTest, channelStatus, buildMessage, maskPhone, httpTransport, _setTransport, _flush };

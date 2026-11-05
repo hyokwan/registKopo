@@ -86,25 +86,27 @@ function get(urlPath, family) {
       if (family === 6) info(hint);
     }
   }
+  // 참고용: Node 기본 fetch (앱은 IPv4 우선 https로 보내므로 여기서 실패해도 알림에는 영향 없음)
   try {
     const started = Date.now();
     const r = await fetch('https://api.telegram.org/', { signal: AbortSignal.timeout(6000) });
-    ok(`fetch(Node 기본 방식) 연결 성공 (HTTP ${r.status}, ${Date.now() - started}ms)`);
+    info(`참고: fetch 방식도 연결됨 (HTTP ${r.status}, ${Date.now() - started}ms)`);
   } catch (e) {
-    const cause = e.cause ? `${e.cause.code || ''} ${e.cause.message || ''}` : '';
-    bad(`fetch 연결 실패: ${e.name} ${mask(cause || e.message)}`, reachable
-      ? 'https 모듈은 되는데 fetch만 실패해요. IPv6 경로 문제일 수 있어요. pm2 설정에 NODE_OPTIONS="--dns-result-order=ipv4first"를 넣어 보세요.'
-      : '위 [4]의 네트워크 문제를 먼저 해결해 주세요.');
+    const cause = e.cause ? `${e.cause.code || ''}` : e.name;
+    info(`참고: fetch 방식은 실패(${mask(cause)}) — IPv6가 막힌 서버에서 흔해요. 앱은 IPv4로 직접 보내므로 괜찮아요.`);
   }
 
   if (TOKEN && reachable) {
-    console.log('\n[5] 봇 토큰 확인 (getMe)');
+    console.log('\n[5] 봇 토큰 확인 (getMe, 앱과 같은 전송 방식)');
     let tokenOk = false;
     try {
-      const r = await get(`/bot${TOKEN}/getMe`, 4);
-      const j = JSON.parse(r.body);
-      if (j.ok) { ok(`봇: ${j.result.first_name} (@${j.result.username})`); tokenOk = true; } else bad(`토큰 거부됨: ${j.error_code} ${j.description}`, '404/401이면 토큰이 틀렸어요. BotFather에서 다시 복사해 주세요.');
-    } catch (e) { bad(`getMe 실패: ${mask(e.message)}`); }
+      const { httpTransport } = require('../services/notify');
+      const j = JSON.parse(await httpTransport(`https://api.telegram.org/bot${TOKEN}/getMe`, {}));
+      ok(`봇: ${j.result.first_name} (@${j.result.username})`);
+      tokenOk = true;
+    } catch (e) {
+      bad(`getMe 실패: ${mask(e.message)}`, e.status === 404 || e.status === 401 ? '토큰이 틀렸어요. BotFather에서 다시 복사해 주세요.' : undefined);
+    }
 
     if (tokenOk && CHAT) {
       console.log('\n[6] 채팅방 확인 (getChat)');
