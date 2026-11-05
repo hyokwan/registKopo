@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>슬롯 관리 · AI핀테크융합과 상담 예약</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-soft">
+  <header class="header header--admin">
+    <div class="container container--wide header__inner">
+      <a class="brand" href="/admin/slots.html" data-logo>
+        <span class="brand__dept">AI핀테크융합과</span><span class="brand__sep">|</span><span class="brand__campus">한국폴리텍대학 서울강서캠퍼스</span>
+      </a>
+      <nav class="nav" aria-label="교수 메뉴">
+        <a href="/admin/slots.html">슬롯 관리</a>
+        <a href="/admin/reservations.html">예약 목록</a>
+        <a href="/admin/settings.html">설정</a>
+        <button type="button" data-logout>로그아웃</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container container--wide page--admin">
+    <div class="page-head">
+      <div>
+        <h1 class="title">상담 시간 관리</h1>
+        <p class="sub">빈칸을 누르면 열리고, 다시 누르면 닫혀요. 드래그하면 여러 칸을 한 번에 바꿀 수 있어요.</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn btn--md" id="locationBtn">📍 장소 변경</button>
+        <button type="button" class="btn btn--md btn--primary" id="bulkBtn">＋ 일괄 열기</button>
+      </div>
+    </div>
+
+    <section class="card slot-board" aria-labelledby="weekLabel">
+      <div class="row row--between" mb-12>
+        <div class="week-nav">
+          <button type="button" class="icon-btn" id="prevWeek" aria-label="이전 주">‹</button>
+          <h2 class="week-nav__label" id="weekLabel" aria-live="polite">&nbsp;</h2>
+          <button type="button" class="icon-btn" id="nextWeek" aria-label="다음 주">›</button>
+          <button type="button" class="btn btn--sm" id="thisWeek">이번 주</button>
+        </div>
+        <label class="switch"><input type="checkbox" id="showSat"> 토요일 표시</label>
+      </div>
+      <ul class="legend" aria-label="칸 상태 안내">
+        <li><i class="lg-closed"></i>닫힘</li>
+        <li><i class="lg-open"></i>○ 열림</li>
+        <li><i class="lg-booked"></i>● 예약됨</li>
+        <li><i class="lg-past"></i>지난 시간</li>
+      </ul>
+      <div id="board" aria-busy="true">
+        <div class="skeleton skeleton--board"></div>
+      </div>
+      <div class="board-summary" id="summary"></div>
+    </section>
+  </main>
+
+  <!-- 예약 상세 패널 -->
+  <div class="drawer" id="drawer" hidden>
+    <aside class="drawer__box" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawer__head">
+        <div>
+          <p class="eyebrow" id="drawerWhen"></p>
+          <h2 class="title" id="drawerTitle">예약 상세</h2>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="닫기">✕</button>
+      </div>
+      <div id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <!-- 일괄 열기 모달 -->
+  <div class="modal" id="bulkModal" hidden>
+    <form class="modal__box modal__box--wide" role="dialog" aria-modal="true" aria-labelledby="bulkTitle" novalidate>
+      <h2 class="modal__title" id="bulkTitle">일괄 열기</h2>
+      <p class="sub mt-0">기간·요일·시간대를 고르면 해당하는 칸을 한 번에 열어요. 이미 열린 칸과 지난 시간은 건너뛰어요.</p>
+      <div class="two-col mt-20">
+        <div class="field"><label for="bulkFrom">시작일</label><input type="date" id="bulkFrom" required></div>
+        <div class="field"><label for="bulkTo">종료일</label><input type="date" id="bulkTo" required></div>
+      </div>
+      <fieldset class="field fieldset">
+        <legend class="label">요일</legend>
+        <div class="chips" id="bulkWeekdays"></div>
+      </fieldset>
+      <fieldset class="field fieldset">
+        <legend class="label">시간대</legend>
+        <div class="quick">
+          <button type="button" class="btn btn--sm" data-hours="am">오전</button>
+          <button type="button" class="btn btn--sm" data-hours="pm">오후</button>
+          <button type="button" class="btn btn--sm" data-hours="all">전체</button>
+          <button type="button" class="btn btn--sm btn--ghost" data-hours="none">선택 해제</button>
+        </div>
+        <div class="chips chips--hours" id="bulkHours"></div>
+      </fieldset>
+      <div class="field">
+        <label for="bulkLocation">장소 <span class="muted small">(비우면 기본 장소)</span></label>
+        <input type="text" id="bulkLocation" maxlength="200" placeholder="">
+      </div>
+      <p class="preview-count" id="bulkPreview" aria-live="polite"></p>
+      <p class="form-error" id="bulkError" role="alert" hidden></p>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>취소</button>
+        <button type="submit" class="btn btn--primary" id="bulkSubmit">열기</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 장소 변경 모달 -->
+  <div class="modal" id="locModal" hidden>
+    <form class="modal__box" role="dialog" aria-modal="true" aria-labelledby="locTitle" novalidate>
+      <h2 class="modal__title" id="locTitle">장소 변경</h2>
+      <div class="field mt-20">
+        <label for="office">내 기본 장소</label>
+        <input type="text" id="office" maxlength="200">
+        <p class="hint mt-6">장소를 따로 정하지 않은 모든 칸에 적용돼요. 비우면 학과 기본 장소를 써요.</p>
+      </div>
+      <div class="drawer__section mt-20">
+        <p class="label">특정 기간의 장소만 바꾸기 <span class="muted small">(선택)</span></p>
+        <div class="two-col">
+          <div class="field"><label for="locFrom">시작일</label><input type="date" id="locFrom"></div>
+          <div class="field"><label for="locTo">종료일</label><input type="date" id="locTo"></div>
+        </div>
+        <div class="field">
+          <label for="locValue">이 기간의 장소 <span class="muted small">(비우면 기본 장소로 되돌림)</span></label>
+          <input type="text" id="locValue" maxlength="200">
+        </div>
+      </div>
+      <p class="form-error" id="locError" role="alert" hidden></p>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>취소</button>
+        <button type="submit" class="btn btn--primary">저장</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script src="/js/admin-slots.js"></script>
+</body>
+</html>

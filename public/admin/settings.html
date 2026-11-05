@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설정 · AI핀테크융합과 상담 예약</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-soft">
+  <header class="header header--admin">
+    <div class="container container--wide header__inner">
+      <a class="brand" href="/admin/slots.html" data-logo>
+        <span class="brand__dept">AI핀테크융합과</span><span class="brand__sep">|</span><span class="brand__campus">한국폴리텍대학 서울강서캠퍼스</span>
+      </a>
+      <nav class="nav" aria-label="교수 메뉴">
+        <a href="/admin/slots.html">슬롯 관리</a>
+        <a href="/admin/reservations.html">예약 목록</a>
+        <a href="/admin/settings.html">설정</a>
+        <button type="button" data-logout>로그아웃</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page--admin">
+    <h1 class="title">설정</h1>
+    <p class="sub" id="pageSub">내 정보와 비밀번호를 바꿀 수 있어요.</p>
+
+    <div class="settings-grid mt-20">
+      <!-- 내 정보 -->
+      <form class="card" id="meForm" aria-labelledby="meTitle" novalidate>
+        <h2 class="h2" id="meTitle">내 정보</h2>
+        <p class="hint mt-6" id="meEmail"></p>
+        <div class="field" data-field="name">
+          <label for="meName">이름</label>
+          <input type="text" id="meName" maxlength="100" aria-describedby="err-me-name">
+          <p class="field-error" id="err-me-name"></p>
+        </div>
+        <div class="field" data-field="office">
+          <label for="meOffice">기본 상담 장소 <span class="muted small">(선택)</span></label>
+          <input type="text" id="meOffice" maxlength="200" aria-describedby="err-me-office">
+          <p class="hint mt-6" id="officeHint">비우면 학과 기본 장소를 써요.</p>
+          <p class="field-error" id="err-me-office"></p>
+        </div>
+        <div class="field" data-field="telegramChatId">
+          <label for="meChat">내 텔레그램 chat_id <span class="muted small">(선택)</span></label>
+          <input type="text" id="meChat" maxlength="40" inputmode="numeric" autocomplete="off" placeholder="예: 123456789" aria-describedby="err-me-telegramChatId">
+          <p class="hint mt-6">넣으면 나에게 배정된 예약 알림을 개인 텔레그램으로도 받아요. 확인 방법은 README를 참고해 주세요.</p>
+          <p class="field-error" id="err-me-telegramChatId"></p>
+        </div>
+        <div class="form-actions"><button type="submit" class="btn btn--md btn--primary">저장</button></div>
+      </form>
+
+      <!-- 비밀번호 -->
+      <form class="card" id="pwForm" aria-labelledby="pwTitle" novalidate>
+        <h2 class="h2" id="pwTitle">비밀번호 변경</h2>
+        <p class="hint mt-6" id="pwShared" hidden>학과 공용 계정이라면 바꾼 비밀번호를 다른 교수님께도 알려 주세요.</p>
+        <input type="text" class="sr-only" autocomplete="username" id="pwUser" tabindex="-1" aria-hidden="true">
+        <div class="field" data-field="currentPassword">
+          <label for="curPw">현재 비밀번호</label>
+          <input type="password" id="curPw" autocomplete="current-password" aria-describedby="err-pw-currentPassword">
+          <p class="field-error" id="err-pw-currentPassword"></p>
+        </div>
+        <div class="field" data-field="newPassword">
+          <label for="newPw">새 비밀번호 <span class="muted small">(8자 이상)</span></label>
+          <input type="password" id="newPw" autocomplete="new-password" aria-describedby="err-pw-newPassword">
+          <p class="field-error" id="err-pw-newPassword"></p>
+        </div>
+        <div class="field" data-field="confirmPassword">
+          <label for="newPw2">새 비밀번호 확인</label>
+          <input type="password" id="newPw2" autocomplete="new-password" aria-describedby="err-pw-confirmPassword">
+          <p class="field-error" id="err-pw-confirmPassword"></p>
+        </div>
+        <div class="form-actions"><button type="submit" class="btn btn--md btn--primary">비밀번호 바꾸기</button></div>
+      </form>
+
+      <!-- 학과 (관리자) -->
+      <form class="card" id="deptForm" aria-labelledby="deptTitle" data-admin-only hidden novalidate>
+        <h2 class="h2" id="deptTitle">학과 정보</h2>
+        <p class="hint mt-6">지원자 화면의 "오시는 길"과 "학과로 연락해 주세요" 안내에 쓰여요.</p>
+        <div class="field" data-field="defaultLocation">
+          <label for="deptLoc">학과 기본 장소<span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="deptLoc" maxlength="200" aria-describedby="err-dept-defaultLocation">
+          <p class="field-error" id="err-dept-defaultLocation"></p>
+        </div>
+        <div class="field" data-field="contactPhone">
+          <label for="deptPhone">학과 전화번호 <span class="muted small">(선택)</span></label>
+          <input type="tel" id="deptPhone" maxlength="30" placeholder="예: 02-0000-0000" aria-describedby="err-dept-contactPhone">
+          <p class="field-error" id="err-dept-contactPhone"></p>
+        </div>
+        <div class="form-actions"><button type="submit" class="btn btn--md btn--primary">저장</button></div>
+      </form>
+
+      <!-- 교수 계정 (관리자) -->
+      <section class="card" aria-labelledby="profTitle" data-admin-only hidden>
+        <div class="row row--between">
+          <h2 class="h2" id="profTitle">교수 계정</h2>
+          <button type="button" class="btn btn--sm btn--primary" id="addProfBtn">＋ 계정 추가</button>
+        </div>
+        <p class="hint mt-6">계정은 삭제하지 않고 "사용 중지"해요. 지난 예약 기록은 그대로 남아요.</p>
+        <ul class="prof-list" id="profList" aria-live="polite"><li class="skeleton skeleton--line" aria-hidden="true"></li></ul>
+      </section>
+
+      <!-- 알림 (관리자) -->
+      <section class="card" id="notifySection" aria-labelledby="notifyTitle" data-admin-only hidden>
+        <h2 class="h2" id="notifyTitle">알림</h2>
+        <p class="hint mt-6">예약 신청·취소가 생기면 아래 채널로 바로 알려 드려요.</p>
+        <ul class="channel-list" id="channelList" aria-live="polite">
+          <li class="skeleton skeleton--line" aria-hidden="true"></li>
+        </ul>
+        <button type="button" class="btn btn--primary btn--block mt-20" id="testBtn">🔔 테스트 알림 보내기</button>
+        <ul class="channel-list" id="testResult" aria-live="polite" hidden></ul>
+        <p class="hint">채널 값은 서버의 <code>.env</code> 파일(<code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code>, <code>SLACK_WEBHOOK_URL</code>)에서 바꿔요. 바꾼 뒤에는 서버를 다시 시작해 주세요.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- 계정 추가 모달 -->
+  <div class="modal" id="addModal" hidden>
+    <form class="modal__box" role="dialog" aria-modal="true" aria-labelledby="addTitle" novalidate>
+      <h2 class="modal__title" id="addTitle">교수 계정 추가</h2>
+      <div class="field" data-field="name">
+        <label for="addName">이름<span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="addName" maxlength="100" aria-describedby="err-add-name">
+        <p class="field-error" id="err-add-name"></p>
+      </div>
+      <div class="field" data-field="email">
+        <label for="addEmail">이메일 (로그인 ID)<span class="req" aria-hidden="true">*</span></label>
+        <input type="email" id="addEmail" maxlength="190" autocomplete="off" aria-describedby="err-add-email">
+        <p class="field-error" id="err-add-email"></p>
+      </div>
+      <div class="field" data-field="password">
+        <label for="addPw">처음 비밀번호<span class="req" aria-hidden="true">*</span> <span class="muted small">(8자 이상)</span></label>
+        <input type="password" id="addPw" autocomplete="new-password" aria-describedby="err-add-password">
+        <p class="field-error" id="err-add-password"></p>
+        <p class="hint mt-6">본인에게 따로 알려 주고, 로그인 후 설정에서 바꾸도록 안내해 주세요.</p>
+      </div>
+      <label class="check mt-12" for="addAdmin">
+        <input type="checkbox" id="addAdmin">
+        <span>관리자 권한 <span class="muted small">(계정 관리·CSV·전체 예약)</span></span>
+      </label>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>취소</button>
+        <button type="submit" class="btn btn--primary" id="addSubmit">추가</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 비밀번호 재설정 모달 -->
+  <div class="modal" id="resetModal" hidden>
+    <form class="modal__box" role="dialog" aria-modal="true" aria-labelledby="resetTitle" novalidate>
+      <h2 class="modal__title" id="resetTitle">비밀번호 재설정</h2>
+      <p class="sub mt-0" id="resetDesc"></p>
+      <div class="field" data-field="password">
+        <label for="resetPw">새 비밀번호 <span class="muted small">(8자 이상)</span></label>
+        <input type="password" id="resetPw" autocomplete="new-password" aria-describedby="err-reset-password">
+        <p class="field-error" id="err-reset-password"></p>
+      </div>
+      <p class="hint">로그인 잠금도 함께 풀려요.</p>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>취소</button>
+        <button type="submit" class="btn btn--primary">재설정</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script src="/js/admin-settings.js"></script>
+</body>
+</html>

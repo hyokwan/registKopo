@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>신청서 작성 · AI핀테크융합과 상담 예약</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="/" data-logo>
+        <span class="brand__dept">AI핀테크융합과</span><span class="brand__sep">|</span><span class="brand__campus">한국폴리텍대학 서울강서캠퍼스</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="container page">
+    <a class="back-link" href="/book.html" id="backLink">‹ 시간 다시 고르기</a>
+    <ol class="steps mt-6" aria-label="2단계 / 3단계"><li class="is-done"></li><li class="is-done"></li><li></li></ol>
+    <h1 class="title">신청서를 작성해 주세요</h1>
+
+    <section class="summary-card mt-20" aria-label="선택한 상담 일정">
+      <div class="summary">
+        <div class="summary__row"><span class="ico" aria-hidden="true">📅</span><b id="sumWhen"></b><a class="change" href="/book.html" id="changeLink">변경</a></div>
+        <div class="summary__row"><span class="ico" aria-hidden="true">📍</span><span id="sumWhere"></span></div>
+      </div>
+    </section>
+
+    <form id="applyForm" class="mt-24" novalidate>
+      <!-- 허니팟: 사람에게는 보이지 않음 -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">웹사이트</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field" data-field="applicantName">
+        <label for="applicantName">이름<span class="req" aria-hidden="true">*</span><span class="sr-only">(필수)</span></label>
+        <input type="text" id="applicantName" name="applicantName" maxlength="50" autocomplete="name" required aria-describedby="err-applicantName">
+        <p class="field-error" id="err-applicantName"></p>
+      </div>
+
+      <div class="field" data-field="phone">
+        <label for="phone">휴대폰 번호<span class="req" aria-hidden="true">*</span><span class="sr-only">(필수)</span></label>
+        <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13" required aria-describedby="err-phone">
+        <p class="field-error" id="err-phone"></p>
+      </div>
+
+      <div class="field" data-field="email">
+        <label for="email">이메일 <span class="muted small">(선택)</span></label>
+        <input type="email" id="email" name="email" maxlength="190" autocomplete="email" aria-describedby="err-email">
+        <p class="field-error" id="err-email"></p>
+      </div>
+
+      <fieldset class="field fieldset" data-field="applicantType" aria-describedby="err-applicantType">
+        <legend>지원 유형<span class="req" aria-hidden="true">*</span><span class="sr-only">(필수)</span></legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="applicantType" value="대졸·졸업예정"><span>대졸·졸업예정</span></label>
+          <label class="chip"><input type="radio" name="applicantType" value="구직자"><span>구직자</span></label>
+          <label class="chip"><input type="radio" name="applicantType" value="재직자"><span>재직자</span></label>
+          <label class="chip"><input type="radio" name="applicantType" value="전직·이직"><span>전직·이직</span></label>
+          <label class="chip"><input type="radio" name="applicantType" value="기타"><span>기타</span></label>
+        </div>
+        <p class="field-error" id="err-applicantType"></p>
+      </fieldset>
+
+      <div class="field" data-field="interest">
+        <label for="interest">관심 분야 <span class="muted small">(선택)</span></label>
+        <input type="text" id="interest" name="interest" maxlength="200" placeholder="예: 자동매매, 데이터분석, 블록체인" aria-describedby="err-interest">
+        <p class="field-error" id="err-interest"></p>
+      </div>
+
+      <div class="field" data-field="message">
+        <label for="message">궁금한 점 <span class="muted small">(선택)</span></label>
+        <textarea id="message" name="message" maxlength="500" placeholder="상담 때 꼭 듣고 싶은 내용을 적어 주세요." aria-describedby="err-message msgCount"></textarea>
+        <div class="field-meta"><span></span><span id="msgCount">0 / 500</span></div>
+        <p class="field-error" id="err-message"></p>
+      </div>
+
+      <div class="field" data-field="privacyAgreed">
+        <label class="check" for="privacyAgreed">
+          <input type="checkbox" id="privacyAgreed" name="privacyAgreed" aria-describedby="err-privacyAgreed">
+          <span><b>[필수]</b> 개인정보 수집·이용에 동의해요.</span>
+        </label>
+        <details class="fold">
+          <summary>자세히 보기</summary>
+          <div class="fold__body">
+            <dl>
+              <dt>수집 항목</dt><dd>이름, 휴대폰 번호, 지원 유형 (선택: 이메일, 관심 분야, 문의 내용)</dd>
+              <dt>목적</dt><dd>입학상담 예약 확인, 일정 안내 및 변경 연락</dd>
+              <dt>보유 기간</dt><dd><b>상담 종료 후 6개월</b>이 지나면 지체 없이 파기해요.</dd>
+            </dl>
+            <p class="mt-12">동의하지 않을 수 있지만, 동의하지 않으면 상담 예약을 할 수 없어요.</p>
+          </div>
+        </details>
+        <p class="field-error" id="err-privacyAgreed"></p>
+      </div>
+
+      <p class="form-error" id="formError" role="alert" hidden></p>
+    </form>
+  </main>
+
+  <div class="bottom-bar">
+    <div class="container">
+      <button type="submit" form="applyForm" class="btn btn--primary" id="submitBtn">예약 신청하기</button>
+    </div>
+  </div>
+
+  <!-- 마감 안내 모달 -->
+  <div class="modal" id="takenModal" hidden>
+    <div class="modal__box" role="alertdialog" aria-modal="true" aria-labelledby="takenTitle" aria-describedby="takenDesc">
+      <h2 class="modal__title" id="takenTitle">앗, 예약이 마감됐어요</h2>
+      <p class="sub" id="takenDesc"></p>
+      <div class="modal__actions">
+        <a class="btn btn--primary" href="/book.html" id="takenBack">다른 시간 고르기</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/apply.js"></script>
+</body>
+</html>

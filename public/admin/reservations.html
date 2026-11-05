@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>예약 목록 · AI핀테크융합과 상담 예약</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-soft">
+  <header class="header header--admin">
+    <div class="container container--wide header__inner">
+      <a class="brand" href="/admin/slots.html" data-logo>
+        <span class="brand__dept">AI핀테크융합과</span><span class="brand__sep">|</span><span class="brand__campus">한국폴리텍대학 서울강서캠퍼스</span>
+      </a>
+      <nav class="nav" aria-label="교수 메뉴">
+        <a href="/admin/slots.html">슬롯 관리</a>
+        <a href="/admin/reservations.html">예약 목록</a>
+        <a href="/admin/settings.html">설정</a>
+        <button type="button" data-logout>로그아웃</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container container--wide page--admin">
+    <div class="page-head">
+      <div>
+        <h1 class="title">예약 목록</h1>
+        <p class="sub">상담이 끝나면 완료·불참을 표시해 주세요. 행을 누르면 자세한 내용을 볼 수 있어요.</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn btn--md" id="csvBtn" data-admin-only hidden>⬇ CSV 다운로드</button>
+      </div>
+    </div>
+
+    <section class="card res-board">
+      <div class="tabs" role="tablist" aria-label="예약 구분">
+        <button type="button" role="tab" class="tab" id="tab-upcoming" data-tab="upcoming" aria-selected="true">예정 <span class="tab__count" id="cnt-upcoming"></span></button>
+        <button type="button" role="tab" class="tab" id="tab-past" data-tab="past" aria-selected="false">지난 <span class="tab__count tab__count--warn" id="cnt-past"></span></button>
+        <button type="button" role="tab" class="tab" id="tab-cancelled" data-tab="cancelled" aria-selected="false">취소</button>
+      </div>
+
+      <div class="res-filter">
+        <label class="sr-only" for="q">검색</label>
+        <input type="search" class="input" id="q" placeholder="이름·휴대폰·예약번호 검색" maxlength="50" autocomplete="off">
+        <label class="switch" id="scopeWrap" hidden><input type="checkbox" id="mineOnly"> 내 예약만</label>
+      </div>
+
+      <div id="list" role="tabpanel" aria-live="polite" aria-busy="true">
+        <div class="skeleton skeleton--card"></div>
+      </div>
+      <button type="button" class="btn btn--md btn--block mt-12" id="moreBtn" hidden>더 보기</button>
+    </section>
+  </main>
+
+  <!-- 예약 상세 패널 -->
+  <div class="drawer" id="drawer" hidden>
+    <aside class="drawer__box" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawer__head">
+        <div>
+          <p class="eyebrow" id="drawerWhen"></p>
+          <h2 class="title" id="drawerTitle">예약 상세</h2>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="닫기">✕</button>
+      </div>
+      <div id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <!-- 교수 취소 모달 -->
+  <div class="modal" id="cancelModal" hidden>
+    <form class="modal__box" role="alertdialog" aria-modal="true" aria-labelledby="cancelTitle" novalidate>
+      <h2 class="modal__title" id="cancelTitle">예약을 취소할까요?</h2>
+      <p class="sub mt-0" id="cancelDesc"></p>
+      <div class="field" data-field="reason">
+        <label for="cancelReason">취소 사유<span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="cancelReason" maxlength="200" placeholder="예: 학과 일정으로 상담이 어려워요" aria-describedby="err-reason">
+        <p class="field-error" id="err-reason"></p>
+        <p class="hint mt-6">지원자가 예약 조회 화면에서 이 사유를 볼 수 있어요.</p>
+      </div>
+      <label class="check mt-12" for="closeSlot">
+        <input type="checkbox" id="closeSlot" checked>
+        <span>이 시간도 닫기 <span class="muted small">(다른 지원자가 다시 예약하지 못하게)</span></span>
+      </label>
+      <p class="notice notice--warn">📞 지원자에게 문자·알림이 자동으로 가지 않아요. 취소 후 <b>전화로 꼭 알려 주세요.</b></p>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>돌아가기</button>
+        <button type="submit" class="btn btn--danger" id="cancelConfirm">예약 취소</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- CSV 모달 (관리자) -->
+  <div class="modal" id="csvModal" hidden>
+    <form class="modal__box" role="dialog" aria-modal="true" aria-labelledby="csvTitle" novalidate>
+      <h2 class="modal__title" id="csvTitle">CSV 다운로드</h2>
+      <p class="sub mt-0">상담일 기준으로 기간을 고르세요. 비우면 전체를 받아요.</p>
+      <div class="two-col mt-20">
+        <div class="field"><label for="csvFrom">시작일</label><input type="date" id="csvFrom"></div>
+        <div class="field"><label for="csvTo">종료일</label><input type="date" id="csvTo"></div>
+      </div>
+      <p class="hint">전체 휴대폰 번호가 들어 있어요. 내려받은 파일은 안전하게 보관하고, 쓰임이 끝나면 지워 주세요.</p>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>닫기</button>
+        <button type="submit" class="btn btn--primary">다운로드</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script src="/js/admin-reservations.js"></script>
+</body>
+</html>

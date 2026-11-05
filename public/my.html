@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>내 예약 확인 · AI핀테크융합과 상담 예약</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="/" data-logo>
+        <span class="brand__dept">AI핀테크융합과</span><span class="brand__sep">|</span><span class="brand__campus">한국폴리텍대학 서울강서캠퍼스</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="container page">
+    <a class="back-link" href="/">‹ 처음으로</a>
+    <h1 class="title mt-6">내 예약 확인</h1>
+    <p class="sub">신청할 때 입력한 휴대폰 번호와 예약번호를 입력해 주세요.</p>
+
+    <form id="lookupForm" class="mt-24" novalidate>
+      <div class="field" data-field="phone">
+        <label for="phone">휴대폰 번호</label>
+        <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13" aria-describedby="err-phone">
+        <p class="field-error" id="err-phone"></p>
+      </div>
+      <div class="field" data-field="code">
+        <label for="code">예약번호 (8자리)</label>
+        <input type="text" id="code" name="code" class="code-input" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AB12CD34" aria-describedby="err-code">
+        <p class="field-error" id="err-code"></p>
+      </div>
+      <p class="form-error" id="formError" role="alert" hidden></p>
+      <button type="submit" class="btn btn--primary btn--block" id="lookupBtn">예약 조회</button>
+    </form>
+
+    <div id="result" aria-live="polite"></div>
+  </main>
+
+  <!-- 취소 확인 모달 -->
+  <div class="modal" id="cancelModal" hidden>
+    <form class="modal__box" role="alertdialog" aria-modal="true" aria-labelledby="cancelTitle" novalidate>
+      <h2 class="modal__title" id="cancelTitle">예약을 취소할까요?</h2>
+      <p class="sub mt-0" id="cancelDesc"></p>
+      <div class="field mt-20">
+        <label for="cancelReason">취소 사유 <span class="muted small">(선택)</span></label>
+        <input type="text" id="cancelReason" maxlength="200" placeholder="예: 일정이 바뀌었어요">
+      </div>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-close>돌아가기</button>
+        <button type="submit" class="btn btn--danger" id="cancelConfirm">예약 취소</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/my.js"></script>
+</body>
+</html>
