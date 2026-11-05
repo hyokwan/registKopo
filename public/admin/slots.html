@@ -29,13 +29,17 @@
         <p class="sub">빈칸을 누르면 열리고, 다시 누르면 닫혀요. 드래그하면 여러 칸을 한 번에 바꿀 수 있어요.</p>
       </div>
       <div class="toolbar">
+        <nav class="seg seg--nav" aria-label="보기 방식">
+          <a class="seg__btn" href="/admin/slots.html" aria-current="page">주간</a>
+          <a class="seg__btn" href="/admin/month.html" id="monthLink">월간</a>
+        </nav>
         <button type="button" class="btn btn--md" id="locationBtn">📍 장소 변경</button>
         <button type="button" class="btn btn--md btn--primary" id="bulkBtn">＋ 일괄 열기</button>
       </div>
     </div>
 
     <section class="card slot-board" aria-labelledby="weekLabel">
-      <div class="row row--between" mb-12>
+      <div class="row row--between mb-12">
         <div class="week-nav">
           <button type="button" class="icon-btn" id="prevWeek" aria-label="이전 주">‹</button>
           <h2 class="week-nav__label" id="weekLabel" aria-live="polite">&nbsp;</h2>

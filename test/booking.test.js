@@ -253,3 +253,33 @@ test('휴대폰 번호 정규화', () => {
   assert.equal(booking.normalizePhone('02-123-4567'), null);
   assert.equal(booking.normalizePhone(''), null);
 });
+
+test('예약번호를 잊으면 이름 + 휴대폰으로 예정된 예약을 찾는다', async () => {
+  const p = await h.createProfessor();
+  const s1 = futureStart(3, 10);
+  const s2 = futureStart(4, 14);
+  await openSlot(p.id, s1);
+  await openSlot(p.id, s2);
+  const a = await apply(form(s1, { applicantName: '김 효관', phone: '010-2222-3333' }));
+  const b = await apply(form(s2, { applicantName: '김효관', phone: '01022223333' }));
+  assert.equal(a.status, 201);
+  assert.equal(b.status, 201);
+
+  const { agent, csrf } = await h.publicAgent(app);
+  const find = (body) => agent.post('/api/reservations/find').set('X-CSRF-Token', csrf).send(body);
+
+  const res = await find({ name: '김효관', phone: '010 2222 3333' });
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.data.map((x) => x.code), [a.body.data.code, b.body.data.code], '이름 띄어쓰기 무시, 시간순');
+  assert.ok(res.body.data.every((x) => x.canCancel));
+  assert.ok(!JSON.stringify(res.body).includes('테스트교수'), '교수 정보 없음');
+
+  assert.equal((await find({ name: '김효곤', phone: '010-2222-3333' })).status, 404, '이름이 다르면 못 찾음');
+  assert.equal((await find({ name: '김효관', phone: '010-2222-3334' })).status, 404, '번호가 다르면 못 찾음');
+  assert.equal((await find({ name: '', phone: '' })).status, 404);
+
+  // 취소된 예약은 찾기 결과에서 빠진다
+  await agent.post('/api/reservations/cancel').set('X-CSRF-Token', csrf).send({ phone: '01022223333', code: a.body.data.code });
+  const after = await find({ name: '김효관', phone: '01022223333' });
+  assert.deepEqual(after.body.data.map((x) => x.code), [b.body.data.code]);
+});

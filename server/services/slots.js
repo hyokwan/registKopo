@@ -39,6 +39,46 @@ const cleanLocation = (v) => {
   return s || null;
 };
 
+// 월간 조회: 날짜별 열린 칸·예약 수와 예약자 이름 (본인 슬롯)
+async function getMonth(professor, monthParam) {
+  const now = time.nowKst();
+  const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(monthParam || '')) ? monthParam : now.slice(0, 7);
+  const [y, m] = month.split('-').map(Number);
+  const next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
+  const prev = m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`;
+  const rows = await db.query(
+    `SELECT s.start_at, s.is_open, r.status, r.applicant_name
+       FROM ${t('slots')} s
+       LEFT JOIN ${t('reservations')} r ON r.slot_id = s.id AND r.status <> 'CANCELLED'
+      WHERE s.professor_id = ? AND s.start_at >= ? AND s.start_at < ?
+      ORDER BY s.start_at`,
+    [professor.id, `${month}-01 00:00:00`, `${next}-01 00:00:00`]
+  );
+  const days = {};
+  for (const r of rows) {
+    const d = time.dateOf(r.start_at);
+    const day = days[d] || (days[d] = { date: d, open: 0, booked: 0, done: 0, hours: [], bookings: [] });
+    const hour = time.hourOf(r.start_at);
+    if (r.status) {
+      if (r.status === 'BOOKED') day.booked += 1; else day.done += 1;
+      day.bookings.push({ hour, name: r.applicant_name, status: r.status });
+    } else if (r.is_open) {
+      day.open += 1;
+      day.hours.push(hour);
+    }
+  }
+  return {
+    month,
+    prevMonth: prev,
+    nextMonth: next,
+    today: time.dateOf(now),
+    hourStart: config.slotDayStart,
+    hourEnd: config.slotDayEnd,
+    maxDate: time.dateOf(time.addDays(now, MAX_OPEN_DAYS_AHEAD)),
+    days: Object.values(days),
+  };
+}
+
 // 주간 조회: 월요일부터 토요일까지
 async function getWeek(professor, weekParam) {
   const base = time.isValidDate(weekParam) ? weekParam : time.dateOf(time.nowKst());
@@ -192,4 +232,4 @@ async function setLocationByRange(professor, { from, to, location }) {
   return { changed: r.affectedRows };
 }
 
-module.exports = { getWeek, setSlots, bulkOpen, setLocationByIds, setLocationByRange, checkStart };
+module.exports = { getWeek, getMonth, setSlots, bulkOpen, setLocationByIds, setLocationByRange, checkStart };

@@ -45,6 +45,12 @@ router.post('/reservations/lookup', lookupLimiter, wrap(async (req, res) => {
   ok(res, await booking.lookup(req.body || {}));
 }));
 
+// 예약번호 찾기: 이름 + 휴대폰
+router.post('/reservations/find', lookupLimiter, wrap(async (req, res) => {
+  const body = req.body || {};
+  ok(res, await booking.findByNameAndPhone({ name: body.name, phone: body.phone }));
+}));
+
 router.post('/reservations/cancel', lookupLimiter, wrap(async (req, res) => {
   ok(res, await booking.cancelByApplicant(req.body || {}));
 }));

@@ -133,3 +133,33 @@ test('다른 교수의 슬롯은 건드릴 수 없음', async () => {
   const [after] = await h.db.query(`SELECT location FROM ${h.t('slots')} WHERE id = ?`, [row.id]);
   assert.equal(after.location, null);
 });
+
+test('월간 조회: 날짜별 열린 칸·예약 수와 예약자 이름, 본인 슬롯만', async () => {
+  const { agent, csrf, professor } = await login();
+  const other = await h.createProfessor({ email: 'other@test.local' });
+  const day = futureStart(10, 9).slice(0, 10);
+  const starts = [9, 10, 11].map((hh) => `${day} ${String(hh).padStart(2, '0')}:00:00`);
+  await agent.post('/api/admin/slots/set').set('X-CSRF-Token', csrf).send({ starts, open: true });
+  // 다른 교수 슬롯은 집계에서 빠진다
+  await h.db.query(`INSERT INTO ${h.t('slots')} (professor_id, start_at, end_at) VALUES (?, ?, ?)`, [other.id, starts[0], starts[1]]);
+  // 11시에 예약 1건
+  const [slot] = await h.db.query(`SELECT id FROM ${h.t('slots')} WHERE professor_id = ? AND start_at = ?`, [professor.id, starts[2]]);
+  await h.db.query(
+    `INSERT INTO ${h.t('reservations')} (slot_id, code, applicant_name, phone, applicant_type, privacy_agreed) VALUES (?, 'MNTH2345', '김효관', '010-1111-2222', '구직자', 1)`,
+    [slot.id]
+  );
+
+  const res = await agent.get('/api/admin/slots/month?month=' + day.slice(0, 7));
+  assert.equal(res.status, 200);
+  assert.equal(res.body.data.month, day.slice(0, 7));
+  const d = res.body.data.days.find((x) => x.date === day);
+  assert.equal(d.open, 2);
+  assert.equal(d.booked, 1);
+  assert.deepEqual(d.hours, [9, 10]);
+  assert.deepEqual(d.bookings, [{ hour: 11, name: '김효관', status: 'BOOKED' }]);
+  assert.match(res.body.data.prevMonth, /^\d{4}-\d{2}$/);
+
+  const bad = await agent.get('/api/admin/slots/month?month=2026-13');
+  assert.equal(bad.status, 200, '잘못된 월은 이번 달로');
+  assert.equal(bad.body.data.month, time.nowKst().slice(0, 7));
+});

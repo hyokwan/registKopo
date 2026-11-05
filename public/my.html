@@ -19,9 +19,19 @@
   <main class="container page">
     <a class="back-link" href="/">‹ 처음으로</a>
     <h1 class="title mt-6">내 예약 확인</h1>
-    <p class="sub">신청할 때 입력한 휴대폰 번호와 예약번호를 입력해 주세요.</p>
+    <p class="sub" id="modeDesc">신청할 때 입력한 휴대폰 번호와 예약번호를 입력해 주세요.</p>
 
-    <form id="lookupForm" class="mt-24" novalidate>
+    <div class="seg mt-20" role="group" aria-label="조회 방법">
+      <button type="button" class="seg__btn" data-mode="code" aria-pressed="true">예약번호로 찾기</button>
+      <button type="button" class="seg__btn" data-mode="name" aria-pressed="false">이름으로 찾기</button>
+    </div>
+
+    <form id="lookupForm" class="mt-6" novalidate>
+      <div class="field" data-field="name" hidden>
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" maxlength="50" autocomplete="name" aria-describedby="err-name">
+        <p class="field-error" id="err-name"></p>
+      </div>
       <div class="field" data-field="phone">
         <label for="phone">휴대폰 번호</label>
         <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13" aria-describedby="err-phone">
@@ -31,12 +41,15 @@
         <label for="code">예약번호 (8자리)</label>
         <input type="text" id="code" name="code" class="code-input" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AB12CD34" aria-describedby="err-code">
         <p class="field-error" id="err-code"></p>
+        <p class="hint mt-6"><button type="button" class="text-link" id="forgotLink">예약번호를 잊으셨나요? 이름으로 찾기</button></p>
       </div>
       <p class="form-error" id="formError" role="alert" hidden></p>
       <button type="submit" class="btn btn--primary btn--block" id="lookupBtn">예약 조회</button>
     </form>
 
     <div id="result" aria-live="polite"></div>
+
+    <p class="notice mt-24" id="contactBox" hidden></p>
   </main>
 
   <!-- 취소 확인 모달 -->

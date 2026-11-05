@@ -275,6 +275,32 @@ async function lookup({ phone, code } = {}) {
   return toPublic(r);
 }
 
+// 예약번호를 잊었을 때: 이름 + 휴대폰이 모두 맞는 "아직 끝나지 않은 예약확정" 건만 돌려준다(예약번호 포함)
+const MSG_FIND_NONE = '이름과 휴대폰 번호가 맞는 예정된 예약이 없어요. 신청할 때 입력한 그대로인지 확인해 주세요.';
+async function findByNameAndPhone({ name, phone } = {}) {
+  const cleanName = String(name || '').replace(/\s+/g, '');
+  const cleanPhone = normalizePhone(phone);
+  if (!cleanName || cleanName.length > 50 || !cleanPhone) throw new HttpError(404, MSG_FIND_NONE);
+  const rows = await db.query(
+    `SELECT r.id, r.code, r.status, r.applicant_name, r.applicant_type, r.interest, r.phone,
+            r.cancelled_by, r.cancelled_at, r.created_at,
+            s.start_at, s.end_at, COALESCE(s.location, p.office, d.default_location) AS location,
+            d.name AS department_name, d.contact_phone AS department_phone
+       FROM ${t('reservations')} r
+       JOIN ${t('slots')} s ON s.id = r.slot_id
+       JOIN ${t('professors')} p ON p.id = s.professor_id
+       JOIN ${t('departments')} d ON d.id = p.department_id
+      WHERE r.phone = ? AND REPLACE(r.applicant_name, ' ', '') = ?
+        AND r.status = 'BOOKED' AND s.end_at > ? AND r.anonymized_at IS NULL
+      ORDER BY s.start_at ASC
+      LIMIT 10`,
+    [cleanPhone, cleanName, time.nowKst()]
+  );
+  if (!rows.length) throw new HttpError(404, MSG_FIND_NONE);
+  log.info('reservation.found_by_name', { count: rows.length, phone: log.maskPhone(cleanPhone) });
+  return rows.map(toPublic);
+}
+
 async function cancelByApplicant({ phone, code, reason } = {}) {
   const cleanReason = String(reason || '').trim().slice(0, 200) || null;
   const result = await db.withTransaction(async (conn) => {
@@ -300,6 +326,7 @@ module.exports = {
   availability,
   createReservation,
   lookup,
+  findByNameAndPhone,
   cancelByApplicant,
   normalizePhone,
   generateCode,

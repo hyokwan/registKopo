@@ -60,6 +60,11 @@ router.get('/slots', wrap(async (req, res) => {
   ok(res, await slots.getWeek(req.professor, req.query.week));
 }));
 
+// 월간 요약 ?month=YYYY-MM
+router.get('/slots/month', wrap(async (req, res) => {
+  ok(res, await slots.getMonth(req.professor, req.query.month));
+}));
+
 // 여러 칸 열기/닫기 (클릭 토글, 드래그 공통) { starts: [...], open: true|false }
 router.post('/slots/set', wrap(async (req, res) => {
   const { starts, open } = req.body || {};

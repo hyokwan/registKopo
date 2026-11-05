@@ -607,3 +607,70 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .tag--brand { background: var(--brand-weak); color: var(--brand); }
 .tag--warn { background: var(--warn-weak); color: #b25e00; }
 .form-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+/* 내 예약: 이름으로 찾기 */
+button.text-link { min-height: 32px; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; color: var(--brand); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.found-head { margin: 24px 0 0; font-size: 15px; color: var(--text-sub); }
+.res-card .code-strong { font-size: 18px; letter-spacing: .08em; color: var(--brand); }
+
+a[href^="tel:"] { white-space: nowrap; }
+
+/* ── 교수: 월간 보기 ───────────────────────────────────────── */
+.seg--nav { padding: 3px; border-radius: 10px; }
+.seg--nav .seg__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 16px; font-size: 14px; text-decoration: none; }
+.seg--nav .seg__btn[aria-current="page"] { background: var(--brand); color: #fff; }
+.legend .lg-selected { background: #fff; border: 2px solid var(--brand); }
+.month-grid { display: grid; grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr)); gap: 6px; }
+.month-grid__wd {
+  min-height: 36px; border: 0; border-radius: 8px; background: none; cursor: pointer;
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--text-sub);
+}
+.month-grid__wd:hover { background: var(--bg); color: var(--brand); }
+.day {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  min-height: 108px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+  font: inherit; text-align: left; color: var(--text); cursor: pointer; min-width: 0;
+}
+.day:hover { border-color: #AFC3F7; }
+.day.is-outside { border: 0; background: none; cursor: default; }
+.day.is-past { background: #F7F8FA; color: var(--text-sub); cursor: default; }
+.day.is-past:hover { border-color: var(--line); }
+.day[aria-disabled="true"]:not(.is-past) { opacity: .5; }
+.day.is-today .day__num { background: var(--text); color: #fff; }
+.day.is-selected { border: 2px solid var(--brand); padding: 7px 9px; background: var(--brand-weak); }
+.day.is-selected::after { content: "✓"; position: absolute; top: 6px; right: 8px; font-weight: 800; color: var(--brand); }
+.day__num { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px; font-weight: 700; font-size: 15px; }
+.day__open { font-size: 13px; font-weight: 600; color: var(--brand); }
+.day__booked { font-size: 13px; font-weight: 700; color: #fff; background: var(--brand); padding: 0 6px; border-radius: 6px; }
+.day__names { font-size: 12px; line-height: 1.45; color: var(--text-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.month-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(0, 0, 0, .06);
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+}
+.month-bar__inner { display: flex; flex-direction: column; gap: 10px; }
+.month-bar__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.month-bar__sel { margin: 0; font-size: 15px; }
+.month-bar__actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.month-bar__actions .hint { margin-right: auto; }
+.month-bar .chips--hours { margin: 0; }
+body.has-month-bar { padding-bottom: 220px; }
+@media (max-width: 759px) {
+  .month-grid { gap: 3px; }
+  .day { min-height: 64px; padding: 4px; align-items: center; border-radius: 8px; }
+  .day.is-selected { padding: 3px; }
+  .day.is-selected::after { top: 1px; right: 3px; font-size: 11px; }
+  .day__num { font-size: 13px; min-width: 22px; height: 22px; }
+  .day__open, .day__booked { font-size: 11px; }
+  .day__booked { padding: 0 4px; }
+  .day__names { display: none; }
+  .month-bar { padding-top: 10px; }
+  .month-bar__inner { gap: 8px; }
+  .month-bar .chips--hours { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--gutter)); padding: 2px var(--gutter); scrollbar-width: none; }
+  .month-bar .chips--hours::-webkit-scrollbar { display: none; }
+  .month-bar .chips--hours .chip, .month-bar .chips--hours .btn { flex: 0 0 auto; }
+  .month-bar .chips--hours .chip span { min-width: 56px; height: 36px; font-size: 13.5px; }
+  .month-bar__actions .btn { flex: 1; }
+  .month-bar__actions .hint { width: 100%; font-size: 13px; }
+  body.has-month-bar { padding-bottom: 210px; }
+}

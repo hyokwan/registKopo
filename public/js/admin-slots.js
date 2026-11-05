@@ -32,6 +32,7 @@
       const url = new URL(location.href);
       url.searchParams.set('week', data.weekStart);
       history.replaceState(null, '', url);
+      document.getElementById('monthLink').href = '/admin/month.html?month=' + data.weekStart.slice(0, 7);
       render();
     } catch (err) {
       board.innerHTML = '<div class="empty">' + escapeHtml(err.message) + '</div>';

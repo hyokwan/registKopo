@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>월간 상담 시간 · AI핀테크융합과 상담 예약</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-soft">
+  <header class="header header--admin">
+    <div class="container container--wide header__inner">
+      <a class="brand" href="/admin/slots.html" data-logo>
+        <span class="brand__dept">AI핀테크융합과</span><span class="brand__sep">|</span><span class="brand__campus">한국폴리텍대학 서울강서캠퍼스</span>
+      </a>
+      <nav class="nav" aria-label="교수 메뉴">
+        <a href="/admin/slots.html" aria-current="page">슬롯 관리</a>
+        <a href="/admin/reservations.html">예약 목록</a>
+        <a href="/admin/settings.html">설정</a>
+        <button type="button" data-logout>로그아웃</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container container--wide page--admin">
+    <div class="page-head">
+      <div>
+        <h1 class="title">상담 시간 관리</h1>
+        <p class="sub">날짜를 눌러 여러 날을 고른 뒤, 아래에서 시간을 골라 한 번에 열거나 닫으세요.</p>
+      </div>
+      <div class="toolbar">
+        <nav class="seg seg--nav" aria-label="보기 방식">
+          <a class="seg__btn" href="/admin/slots.html" id="weekLink">주간</a>
+          <a class="seg__btn" href="/admin/month.html" aria-current="page">월간</a>
+        </nav>
+      </div>
+    </div>
+
+    <section class="card month-board" aria-labelledby="monthLabel">
+      <div class="row row--between mb-12">
+        <div class="week-nav">
+          <button type="button" class="icon-btn" id="prevMonth" aria-label="이전 달">‹</button>
+          <h2 class="week-nav__label" id="monthLabel" aria-live="polite">&nbsp;</h2>
+          <button type="button" class="icon-btn" id="nextMonth" aria-label="다음 달">›</button>
+          <button type="button" class="btn btn--sm" id="thisMonth">이번 달</button>
+        </div>
+        <label class="switch"><input type="checkbox" id="showSat"> 토요일 표시</label>
+      </div>
+      <ul class="legend" aria-label="표시 안내">
+        <li><i class="lg-open"></i>○ 열린 시간 수</li>
+        <li><i class="lg-booked"></i>● 예약 수</li>
+        <li><i class="lg-selected"></i>✓ 선택한 날</li>
+        <li><i class="lg-past"></i>지난 날</li>
+      </ul>
+      <p class="hint mt-0 mb-12">요일 이름을 누르면 이 달의 그 요일을 모두 선택해요.</p>
+      <div id="calendar" aria-busy="true"><div class="skeleton skeleton--board"></div></div>
+    </section>
+  </main>
+
+  <!-- 선택한 날 작업 바 -->
+  <div class="month-bar" id="bar" hidden>
+    <div class="container container--wide month-bar__inner">
+      <div class="month-bar__top">
+        <p class="month-bar__sel" id="selLabel" aria-live="polite"></p>
+        <div class="row">
+          <a class="btn btn--sm" id="weekDetail" hidden>주간에서 자세히</a>
+          <button type="button" class="btn btn--sm btn--ghost" id="clearSel">선택 해제</button>
+        </div>
+      </div>
+      <div class="chips chips--hours" id="hourChips" role="group" aria-label="시간 선택"></div>
+      <div class="month-bar__actions">
+        <span class="hint mt-0" id="previewText"></span>
+        <button type="button" class="btn btn--md btn--danger-outline" id="closeBtn">선택한 시간 닫기</button>
+        <button type="button" class="btn btn--md btn--primary" id="openBtn">선택한 시간 열기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script src="/js/admin-month.js"></script>
+</body>
+</html>
