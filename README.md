@@ -290,6 +290,7 @@ pm2 restart kopo-booking
 | `npm run db:migrate` | `db/migrations/*.sql` 중 아직 적용하지 않은 것만 적용 |
 | `npm run create-professor -- --department ai-fintech --email ... --name "..." [--admin] [--office "..."]` | 교수 계정 생성. 이미 있으면 비밀번호와 정보만 갱신 |
 | `npm run purge-expired [-- --dry-run]` | 보유기간이 지난 개인정보 익명화 |
+| `npm run notify:check [-- --send]` | 텔레그램 알림 점검: .env 값 → DNS → 서버에서 나가는 연결 → 봇 토큰 → 채팅방 순서로 확인 (`--send`면 테스트 메시지 1건 발송). 토큰은 출력하지 않음 |
 | `npm test` | 자동 테스트 (`cb_test_` 테이블만 사용, 운영 데이터는 건드리지 않음) |
 
 ---

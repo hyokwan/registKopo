@@ -9,7 +9,8 @@
     "db:check": "node server/cli/db-check.js",
     "db:migrate": "node server/cli/migrate.js",
     "create-professor": "node server/cli/create-professor.js",
-    "purge-expired": "node server/cli/purge-expired.js"
+    "purge-expired": "node server/cli/purge-expired.js",
+    "notify:check": "node server/cli/notify-check.js"
   },
   "license": "UNLICENSED",
   "type": "commonjs",
